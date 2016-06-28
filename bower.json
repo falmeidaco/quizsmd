@@ -1,0 +1,28 @@
+{
+  "name": "quizsmd",
+  "homepage": "https://github.com/falmeidaco/quizsmd",
+  "authors": [
+    "Felipe Almeida <felipealmeidacosta@gmail.com>"
+  ],
+  "description": "Sistema de Quiz",
+  "main": "quizsmd.js",
+  "moduleType": [],
+  "keywords": [
+    "quiz",
+    "js"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "2.2.4",
+    "angular": "^1.5.7"
+  }
+}
