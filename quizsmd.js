@@ -1,6 +1,6 @@
 (function($) {
     /* Classe QuizSMD */
-    var QuizSMD = function () {
+    var QuizSMD = window.QuizSMD = function () {
 
         /* MODELO DE PERGUNTA E RESPOSTA
         {
@@ -46,7 +46,7 @@
             //Check for questions
             if (window.localStorage) {
                 if (window.localStorage.getItem("_quizsmd.config") !== null) {
-                    current_questions = JSON.parse(window.localStorage.getItem("_quizsmd"));
+                    current_questions = JSON.parse(window.localStorage.getItem("_quizsmd.config"));
                 } else {
                     current_questions = config.default_questions;
                     window.localStorage.setItem("_quizsmd.config", JSON.stringify(current_questions));
@@ -55,7 +55,5 @@
         };
 
     }
-
-    var quizsmd = window.quizsmd = new QuizSMD();
 
 }(jQuery));

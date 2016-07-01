@@ -27,76 +27,55 @@
                             </ul>
                         </div>
                         <div class="col-md-9">
-                            <h2>Lista de perguntas e respostas</h2>
-                            <ul class="list-group">
+                            <h2>Lista de perguntas e respostas <span class="badge" id="question-lenght"></span></h2>
+                            <ul class="list-group" id="question-list">
+                                <!--
                                 <li class="list-group-item">
-                                    <div class="row">
-                                        <div class="col-md-10">
-                                            <p><strong>Pergunta: </strong> Quem foi o primeiro presidente do brasil?</p>
-                                            <p><strong>Opções</strong></p>
-                                            <ul>
-                                                <li>Ninguém</li>
-                                                <li>Alguém</li>
-                                                <li>Você</li>
-                                                <li>Eu</li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="btn-group-vertical pull-right">
-                                                <button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Editar</button>
-                                                <button class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Excluir</button>
-                                                <button class="btn btn-warning"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Mover para cima</button>
-                                                <button class="btn btn-warning"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span> Mover para baixo</button>
-                                            </div>
+                                    <div class="form-group">
+                                        <label for="">Pergunta 1</label>
+                                        <textarea name="" id="" cols="30" rows="2" class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="radio" name="question_1">
+                                            </span>
+                                            <input type="text" class="form-control">
                                         </div>
                                     </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div class="row">
-                                        <div class="col-md-10">
-                                            <p><strong>Pergunta: </strong> Quem foi o primeiro presidente do brasil?</p>
-                                            <p><strong>Opções</strong></p>
-                                            <ul>
-                                                <li>Ninguém</li>
-                                                <li>Alguém</li>
-                                                <li>Você</li>
-                                                <li>Eu</li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="btn-group-vertical pull-right">
-                                                <button class="btn btn-default"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Editar</button>
-                                                <button class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Excluir</button>
-                                                <button class="btn btn-warning"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Mover para cima</button>
-                                                <button class="btn btn-warning"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span> Mover para baixo</button>
-                                            </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="radio" name="question_1">
+                                            </span>
+                                            <input type="text" class="form-control">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <input type="radio" name="question_1">
+                                            </span>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-arrow-down"></span> Mover para cima</button>
+                                        <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-arrow-up"></span> Mover para baixo</button>
+                                        <button class="btn btn-danger btn-xs pull-right"><span class="glyphicon glyphicon-trash"></span> Remover pergunta</button>
+                                    </p>
                                 </li>
+                                -->
                             </ul>
-                            <div class="panel panel-default">
-                                <div class="panel-heading text-center">
-                                    Adicionar nova pergunta
-                                </div>
-                                <div class="panel-body">
-                                    <form class="form">
-                                        <div class="form-group">
-                                            <label for="item_text">Pergunta</label>
-                                            <input id="item_text" type="text" class="form-control">
-
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="panel-footer">
-
-                                </div>
-                            </div>
+                            <p class="text-center">
+                                <button class="btn btn-success btn-block btn-lg"><span class="glyphicon glyphicon-plus"></span> Adicionar nova pergunta</button>
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="panel-footer text-center">
-                    <a class="btn btn-default" href="index.html">Voltar</a>
-                    <a class="btn btn-primary">Salvar configurações</a>
+                <div class="panel-footer">
+                    <a class="btn btn-default" href="index.html"><span class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
+                    <button class="btn btn-primary pull-right"> <span class="glyphicon glyphicon-floppy-save"></span> Salvar configurações</button>
                 </div>
             </div>
         </section>
@@ -106,11 +85,209 @@
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="quizsmd.js"></script>
     <script>
-        jQuery(document).ready(function() {
-            quizsmd.init();
-            for (i = 0; i < quizsmd.getQuestions().length; i+=1) {
-                console.log(quizsmd.getQuestions()[i].text);
+        jQuery(document).ready(function () {
+
+            var current_questions,
+                QuizApp = new QuizSMD();
+
+            //Inicia objeto QuizApp;
+            QuizApp.init();
+
+            //Carrega perguntas registradas
+            current_questions = QuizApp.getQuestions();
+            //console.log(current_questions);
+
+            function createNode (node) {
+                var i, data, attribute, nodeContent, nodeElement = document.createElement(node.type);
+                //Attributes
+                if (node.hasOwnProperty('attr')) {
+                    for (attribute in node.attr) {
+                        if (node.attr.hasOwnProperty(attribute)) {
+                            if (attribute === 'dataset') {
+                                for (data in node.attr[attribute]) {
+                                    if (node.attr[attribute].hasOwnProperty(data)) {
+                                        nodeElement.dataset[data] = node.attr[attribute][data];
+                                    }
+                                }
+                            } else if (node.type === 'input' && attribute === 'value') {
+                                nodeElement.value = node.attr[attribute];
+                            } else {
+                                nodeElement.setAttribute(attribute, node.attr[attribute]);
+                            }
+                        }
+                    }
+                }
+                //Content
+                if (node.hasOwnProperty('content')) {
+                    if (typeof node.content === "string") {
+                        nodeContent = document.createTextNode(node.content);
+                        nodeElement.appendChild(nodeContent);
+                    } else if (typeof node.content === "object") {
+                        if (node.content.constructor === Array) {
+                            for (i = 0; i < node.content.length; i += 1) {
+                                nodeContent = createNode(node.content[i]);
+                                nodeElement.appendChild(nodeContent);
+                            }
+                        } else {
+                            nodeContent = createNode(node.content);
+                            nodeElement.appendChild(nodeContent);
+                        }
+                    }
+                }
+                //Events
+                if (node.hasOwnProperty('events')) {
+                    for (event in node.events) {
+                        if (node.events.hasOwnProperty(event)) {
+                            nodeElement.addEventListener(event, node.events[event], false);
+                        }
+                    }
+                }
+                return nodeElement;
             }
+
+            //Cria elemento pergunta
+            function createQuestionNode(question, id) {
+
+                var node = document.createElement('li');
+                node.setAttribute('class', 'list-group-item');
+                node.dataset.questionId = id;
+
+                /* Question text element */
+                    var node_text_container = document.createElement('div');
+                    node_text_container.setAttribute('class', 'form-group');
+
+                    var node_text_label = document.createElement('label');
+                    node_text_label.setAttribute('for', 'question_textarea_' + id);
+                    node_text_label.innerHTML = "Pergunta " + (id + 1);
+
+                    var node_text_input = document.createElement('textarea');
+                    node_text_input.setAttribute('name', 'question_textarea_' + id);
+                    node_text_input.setAttribute('name', 'question_textarea_' + id);
+                    node_text_input.setAttribute('id', 'question_textarea_' + id);
+                    node_text_input.setAttribute('class', 'form-control');
+                    node_text_input.value = question.text;
+
+                    node_text_container.appendChild(node_text_label);
+                    node_text_container.appendChild(node_text_input);
+
+                node.appendChild(node_text_container);
+
+                /* Question options */
+                for (i = 0; i < question.options.length; i += 1) {
+                    nodeTree = {
+                        'type':'div',
+                        'attr':{
+                            'class':'form-group'
+                        },
+                        'content':{
+                            'type':'div',
+                            'attr':{
+                                'class':'input-group'
+                            },
+                            'content':[
+                                {
+                                    'type':'span',
+                                    'attr':{
+                                        'class':'input-group-addon'
+                                    },
+                                    'content':{
+                                        'type':'input',
+                                        'attr':{
+                                            'type':'radio',
+                                            'name':'question[' + id + ']'
+                                        }
+                                    }
+                                },
+                                {
+                                    'type':'input',
+                                    'attr':{
+                                        'type':'text',
+                                        'class':'form-control',
+                                        'value':question.options[i]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                    /*
+                    var node_option_container = document.createElement('div');
+                    node_option_container.setAttribute('class', 'form-group');
+                        var node_option_group = document.createElement('div');
+                        node_option_group.setAttribute('class', 'input-group');
+                            var node_option_group_addon_container = document.createElement('span');
+                            node_option_group_addon_container.setAttribute('class','input-group-addon');
+                                var node_option_group_addon_input = document.createElement('input');
+                                node_option_group_addon_input.setAttribute('type', 'radio');
+                                node_option_group_addon_input.setAttribute('name','question['+id+']');
+                                if ((parseInt(question.answer, 10) - 1) === i) {
+                                    //console.log(parseInt(question.answer, 10), question.answer, i);
+                                    node_option_group_addon_input.setAttribute('checked','checked');
+                                }
+                            node_option_group_addon_container.appendChild(node_option_group_addon_input);
+
+                            var node_option_group_input = document.createElement('input');
+                            node_option_group_input.setAttribute('class','form-control');
+                            node_option_group_input.value = question.options[i];
+
+                        node_option_group.appendChild(node_option_group_addon_container);
+                        node_option_group.appendChild(node_option_group_input);
+                        node_option_container.appendChild(node_option_group);
+
+                    */
+                    node.appendChild(createNode(nodeTree));
+                }
+
+                return node;
+                /*
+                 <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <input type="radio" name="question_1">
+                        </span>
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                */
+
+            }
+
+            //Renderiza elementos no painel
+            function renderQuestions(current_questions) {
+                var i;
+                for (i = 0; i < current_questions.length; i += 1) {
+                    $('#question-list').append(createNode(
+                        {
+                            type:'li',
+                            attr:{class:'list-group-item'},
+                            content:[
+                                {
+                                    type:'label',
+                                    attr:{for:''},
+                                    content:'Pergunta ' + (i+1)
+                                },
+                                {
+                                    type:'div',
+                                    attr:{class:'form-group'},
+                                    content:{
+                                        type:'textarea',
+                                        attr:{class:'form-control',rows:2},
+                                        content:current_questions[i].text
+                                    }
+                                },
+                                (function(options) {
+                                    var i, options = [];
+                                    for (i = 0; i < options.length; i += 1) {
+
+                                    }
+                                }(current_questions[i].options));
+                            ]
+                        })
+                    );
+                }
+            }
+
+            renderQuestions(QuizApp.getQuestions());
+
         });
     </script>
 </body>
