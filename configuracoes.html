@@ -87,15 +87,11 @@
     <script>
         jQuery(document).ready(function () {
 
-            var current_questions,
-                QuizApp = new QuizSMD();
+            var current_questions, QuizApp = new QuizSMD();
 
-            //Inicia objeto QuizApp;
             QuizApp.init();
 
-            //Carrega perguntas registradas
             current_questions = QuizApp.getQuestions();
-            //console.log(current_questions);
 
             function createNode (node) {
                 var i, data, attribute, nodeContent, nodeElement = document.createElement(node.type);
@@ -112,7 +108,13 @@
                             } else if (node.type === 'input' && attribute === 'value') {
                                 nodeElement.value = node.attr[attribute];
                             } else {
-                                nodeElement.setAttribute(attribute, node.attr[attribute]);
+                                if (typeof node.attr[attribute] === "object") {
+                                    if (node.attr[attribute].condition) {
+                                        nodeElement.setAttribute(attribute, node.attr[attribute].value);
+                                    }
+                                } else {
+                                    nodeElement.setAttribute(attribute, node.attr[attribute]);
+                                }
                             }
                         }
                     }
@@ -145,112 +147,6 @@
                 return nodeElement;
             }
 
-            //Cria elemento pergunta
-            function createQuestionNode(question, id) {
-
-                var node = document.createElement('li');
-                node.setAttribute('class', 'list-group-item');
-                node.dataset.questionId = id;
-
-                /* Question text element */
-                    var node_text_container = document.createElement('div');
-                    node_text_container.setAttribute('class', 'form-group');
-
-                    var node_text_label = document.createElement('label');
-                    node_text_label.setAttribute('for', 'question_textarea_' + id);
-                    node_text_label.innerHTML = "Pergunta " + (id + 1);
-
-                    var node_text_input = document.createElement('textarea');
-                    node_text_input.setAttribute('name', 'question_textarea_' + id);
-                    node_text_input.setAttribute('name', 'question_textarea_' + id);
-                    node_text_input.setAttribute('id', 'question_textarea_' + id);
-                    node_text_input.setAttribute('class', 'form-control');
-                    node_text_input.value = question.text;
-
-                    node_text_container.appendChild(node_text_label);
-                    node_text_container.appendChild(node_text_input);
-
-                node.appendChild(node_text_container);
-
-                /* Question options */
-                for (i = 0; i < question.options.length; i += 1) {
-                    nodeTree = {
-                        'type':'div',
-                        'attr':{
-                            'class':'form-group'
-                        },
-                        'content':{
-                            'type':'div',
-                            'attr':{
-                                'class':'input-group'
-                            },
-                            'content':[
-                                {
-                                    'type':'span',
-                                    'attr':{
-                                        'class':'input-group-addon'
-                                    },
-                                    'content':{
-                                        'type':'input',
-                                        'attr':{
-                                            'type':'radio',
-                                            'name':'question[' + id + ']'
-                                        }
-                                    }
-                                },
-                                {
-                                    'type':'input',
-                                    'attr':{
-                                        'type':'text',
-                                        'class':'form-control',
-                                        'value':question.options[i]
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                    /*
-                    var node_option_container = document.createElement('div');
-                    node_option_container.setAttribute('class', 'form-group');
-                        var node_option_group = document.createElement('div');
-                        node_option_group.setAttribute('class', 'input-group');
-                            var node_option_group_addon_container = document.createElement('span');
-                            node_option_group_addon_container.setAttribute('class','input-group-addon');
-                                var node_option_group_addon_input = document.createElement('input');
-                                node_option_group_addon_input.setAttribute('type', 'radio');
-                                node_option_group_addon_input.setAttribute('name','question['+id+']');
-                                if ((parseInt(question.answer, 10) - 1) === i) {
-                                    //console.log(parseInt(question.answer, 10), question.answer, i);
-                                    node_option_group_addon_input.setAttribute('checked','checked');
-                                }
-                            node_option_group_addon_container.appendChild(node_option_group_addon_input);
-
-                            var node_option_group_input = document.createElement('input');
-                            node_option_group_input.setAttribute('class','form-control');
-                            node_option_group_input.value = question.options[i];
-
-                        node_option_group.appendChild(node_option_group_addon_container);
-                        node_option_group.appendChild(node_option_group_input);
-                        node_option_container.appendChild(node_option_group);
-
-                    */
-                    node.appendChild(createNode(nodeTree));
-                }
-
-                return node;
-                /*
-                 <div class="form-group">
-                    <div class="input-group">
-                        <span class="input-group-addon">
-                            <input type="radio" name="question_1">
-                        </span>
-                        <input type="text" class="form-control">
-                    </div>
-                </div>
-                */
-
-            }
-
             //Renderiza elementos no painel
             function renderQuestions(current_questions) {
                 var i;
@@ -274,12 +170,87 @@
                                         content:current_questions[i].text
                                     }
                                 },
-                                (function(options) {
-                                    var i, options = [];
-                                    for (i = 0; i < options.length; i += 1) {
-
+                                {
+                                    type:'div',
+                                    content:(function(question, question_index) {
+                                        var i, options = [];
+                                        for (i = 0; i < question.options.length; i += 1) {
+                                            options.push(
+                                                {
+                                                    'type':'div',
+                                                    'attr':{'class':'form-group'},
+                                                    'content':{
+                                                        'type':'div',
+                                                        'attr':{'class':'input-group'},
+                                                        'content':[
+                                                            {
+                                                                'type':'span',
+                                                                'attr':{'class':'input-group-addon'},
+                                                                'content':{
+                                                                    'type':'input',
+                                                                    'attr':{
+                                                                        'dataset':{
+                                                                            'question':question_index,
+                                                                            'option':i
+                                                                        },
+                                                                        'type':'radio',
+                                                                        'name':'question[' + question_index + ']',
+                                                                        'checked':{
+                                                                            'condition':(function(a, b){
+                                                                                if (parseInt(a, 10) === (b + 1)) {
+                                                                                    return true;
+                                                                                } else {
+                                                                                    return false;
+                                                                                }
+                                                                            }(question.answer, i)),
+                                                                            'value':'checked'
+                                                                        }
+                                                                    },
+                                                                    'events':{
+                                                                        'click':function(e) {
+                                                                            console.log(e.srcElement.dataset)
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            {
+                                                                'type':'input',
+                                                                'attr':{
+                                                                    'dataset':{
+                                                                        'question':question_index,
+                                                                        'option':i
+                                                                    },
+                                                                    'type':'text',
+                                                                    'class':'form-control',
+                                                                    'value':question.options[i]
+                                                                },
+                                                                'events':{
+                                                                    'input':function(e) {
+                                                                        console.log(e.srcElement.value, e.srcElement.dataset);
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            );
+                                        }
+                                        return options;
+                                    }(current_questions[i], i))
+                                },
+                                {
+                                    'type':'p',
+                                    'attr':{
+                                        'class':'text-right'
+                                    },
+                                    'content':{
+                                        'type':'button',
+                                        'attr':{
+                                            'class':'btn btn-danger btn-xs'
+                                        },
+                                        'content':'Remover'
                                     }
-                                }(current_questions[i].options));
+                                }
                             ]
                         })
                     );
@@ -287,9 +258,7 @@
             }
 
             renderQuestions(QuizApp.getQuestions());
-
         });
     </script>
 </body>
-
 </html>
