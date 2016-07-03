@@ -12,14 +12,111 @@
 
 <body class="container">
     <main class="MainApp" class="container-fluid">
+        <header>
+            <h1 class="text-center">QuizSMD</h1>
+        </header>
         <section id="screen-content">
-            Quiz
+            <div class="screen-start text-center">
+                <p>Olá. Clique em iniciar para responder as perguntas.</p>
+                <p>
+                    <button id="start-quiz" class="btn btn-success"><strong>Iniciar Quiz</strong></button>
+                </p>
+            </div>
+            <div class="panel panel-default screen-quiz" style="display:none">
+                <div class="panel-heading text-center">
+                        Pergunta <strong>1</strong> de <strong>10</strong>
+                </div>
+                <div class="panel-body">
+                    <div id="question-container">
+
+                    </div>
+                    <div class="progress hide">
+                      <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 78%;">
+                        78%
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-result" style="display:none">
+                <p id="result"></p>
+            </div>
+            <p class="text-center"><a href="index.html" class="btn btn-default">Voltar</a></p>
         </section>
     </main>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="quizsmd.js"></script>
+    <script>
+         jQuery(document).ready(function () {
+
+            var questions, answers = [], current_question = 0, QuizApp = new QuizSMD();
+
+            QuizApp.init();
+            questions = QuizApp.getQuestions();
+
+            function renderQuestion(q, qi) {
+                var question_container = document.getElementById('question-container');
+                question_container.innerHTML = "";
+                question_container.appendChild(createNode({
+                    type:'div',
+                    content:[
+                        {
+                            type:'h2',
+                            attr:{
+                                class:'text-center'
+                            },
+                            content:q[qi].text
+                        },
+                        {
+                            type:'div',
+                            content:(function(q, qid){
+                                var i, options = [];
+                                for (i = 0; i < q.options.length; i += 1) {
+                                    options.push(
+                                        {
+                                            type:'p',
+                                            attr:{
+                                                dataset:{
+                                                    question: qid,
+                                                    option: (i + 1)
+                                                }
+                                            },
+                                            content:q.options[i].text,
+                                            events:{
+                                                click:function(e) {
+                                                    answers.push(e.target.dataset.option);
+                                                    nextQuestion();
+                                                }
+                                            }
+                                        }
+                                    );
+                                }
+                                return options;
+                            }(q[qi], qi))
+                        }
+                    ]
+                }));
+            }
+
+            function nextQuestion() {
+                if ((current_question + 1) < questions.length) {
+                    current_question += 1;
+                    renderQuestion(questions, current_question);
+                } else {
+                    $(".screen-quiz").hide();
+                    $(".screen-result").show();
+                    $('#result').html("Você acertou " + QuizApp.getResults(questions, answers).correct.length + " e errou " + QuizApp.getResults(questions, answers).wrong.length + " de " + questions.length + " perguntas.");
+                }
+            }
+
+            $("#start-quiz").click(function() {
+                $(".screen-start").hide();
+                renderQuestion(questions, current_question);
+                $(".screen-quiz").show();
+            });
+
+         });
+    </script>
 </body>
 
 </html>

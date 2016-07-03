@@ -11,7 +11,7 @@
 </head>
 
 <body class="container">
-    <main class="MainApp" class="container-fluid">
+    <main class="MainApp">
         <header>
             <h1 class="text-center">QuizSMD</h1>
         </header>
@@ -22,66 +22,42 @@
                     <div class="row">
                         <div class="col-md-3">
                             <h3>Opções</h3>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">Resetar perguntas e respostas</a></li>
-                            </ul>
+                            <div class="list-group">
+                                <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-repeat"></span> Resetar perguntas</a>
+                                <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-save"></span> Exportar perguntas</a>
+                                <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-open"></span> Importar perguntas</a>
+                            </div>
                         </div>
                         <div class="col-md-9">
-                            <h2>Lista de perguntas e respostas <span class="badge" id="question-lenght"></span></h2>
+                            <h2>Lista de perguntas e respostas <span class="badge" id="question-length"></span></h2>
                             <ul class="list-group" id="question-list">
-                                <!--
-                                <li class="list-group-item">
+                                <li class="list-group-item clearfix">
                                     <div class="form-group">
                                         <label for="">Pergunta 1</label>
-                                        <textarea name="" id="" cols="30" rows="2" class="form-control"></textarea>
+                                        <textarea name="" id="" rows="2" class="form-control"></textarea>
                                     </div>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <input type="radio" name="question_1">
-                                            </span>
+                                    <div class="option-container">
+                                        <img src="http://dummyimage.com/120x120/000000/fff" alt="Imagem" class="img-thumbnail">
+                                        <div class="form-group">
                                             <input type="text" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <input type="radio" name="question_1">
-                                            </span>
-                                            <input type="text" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <input type="radio" name="question_1">
-                                            </span>
-                                            <input type="text" class="form-control">
-                                        </div>
-                                    </div>
-                                    <p>
-                                        <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-arrow-down"></span> Mover para cima</button>
-                                        <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-arrow-up"></span> Mover para baixo</button>
-                                        <button class="btn btn-danger btn-xs pull-right"><span class="glyphicon glyphicon-trash"></span> Remover pergunta</button>
-                                    </p>
                                 </li>
-                                -->
                             </ul>
                             <p class="text-center">
-                                <button class="btn btn-success btn-block btn-lg"><span class="glyphicon glyphicon-plus"></span> Adicionar nova pergunta</button>
+                                <button class="btn btn-success btn-block btn-lg" id="add_question"><span class="glyphicon glyphicon-plus"></span> Adicionar nova pergunta</button>
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="panel-footer">
                     <a class="btn btn-default" href="index.html"><span class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
-                    <button class="btn btn-primary pull-right"> <span class="glyphicon glyphicon-floppy-save"></span> Salvar configurações</button>
+                    <button id="save_questions" class="btn btn-primary pull-right"> <span class="glyphicon glyphicon-floppy-save"></span> Salvar configurações</button>
                 </div>
             </div>
         </section>
     </main>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="quizsmd.js"></script>
     <script>
@@ -93,171 +69,272 @@
 
             current_questions = QuizApp.getQuestions();
 
-            function createNode (node) {
-                var i, data, attribute, nodeContent, nodeElement = document.createElement(node.type);
-                //Attributes
-                if (node.hasOwnProperty('attr')) {
-                    for (attribute in node.attr) {
-                        if (node.attr.hasOwnProperty(attribute)) {
-                            if (attribute === 'dataset') {
-                                for (data in node.attr[attribute]) {
-                                    if (node.attr[attribute].hasOwnProperty(data)) {
-                                        nodeElement.dataset[data] = node.attr[attribute][data];
-                                    }
-                                }
-                            } else if (node.type === 'input' && attribute === 'value') {
-                                nodeElement.value = node.attr[attribute];
-                            } else {
-                                if (typeof node.attr[attribute] === "object") {
-                                    if (node.attr[attribute].condition) {
-                                        nodeElement.setAttribute(attribute, node.attr[attribute].value);
-                                    }
-                                } else {
-                                    nodeElement.setAttribute(attribute, node.attr[attribute]);
+            function renderQuestions(questions) {
+                var list, list_container = document.getElementById('question-list');
+                document.getElementById('question-length').innerHTML = questions.length;
+                //Limpa contatúdo da lista
+                while (list_container.firstChild) {
+                    list_container.removeChild(list_container.firstChild);
+                }
+                //Cria conteúdo
+                list = createNode(
+                    (function(q) {
+                        var i, questions = [];
+                        if (q.length === 0) {
+                            return {
+                                type:'li',
+                                attr:{
+                                    class:'list-group-item'
+                                },
+                                content:{
+                                    type:'p',
+                                    attr:{
+                                        class:'text-center'
+                                    },
+                                    content:"Você não tem nenhuma pergunta criada. <strong>Clique em adicionar nova pergunta</strong>"
                                 }
                             }
                         }
-                    }
-                }
-                //Content
-                if (node.hasOwnProperty('content')) {
-                    if (typeof node.content === "string") {
-                        nodeContent = document.createTextNode(node.content);
-                        nodeElement.appendChild(nodeContent);
-                    } else if (typeof node.content === "object") {
-                        if (node.content.constructor === Array) {
-                            for (i = 0; i < node.content.length; i += 1) {
-                                nodeContent = createNode(node.content[i]);
-                                nodeElement.appendChild(nodeContent);
-                            }
-                        } else {
-                            nodeContent = createNode(node.content);
-                            nodeElement.appendChild(nodeContent);
-                        }
-                    }
-                }
-                //Events
-                if (node.hasOwnProperty('events')) {
-                    for (event in node.events) {
-                        if (node.events.hasOwnProperty(event)) {
-                            nodeElement.addEventListener(event, node.events[event], false);
-                        }
-                    }
-                }
-                return nodeElement;
-            }
-
-            //Renderiza elementos no painel
-            function renderQuestions(current_questions) {
-                var i;
-                for (i = 0; i < current_questions.length; i += 1) {
-                    $('#question-list').append(createNode(
-                        {
-                            type:'li',
-                            attr:{class:'list-group-item'},
-                            content:[
+                        for (i  = 0; i < q.length; i += 1) {
+                            questions.push(
+                                /**/
                                 {
-                                    type:'label',
-                                    attr:{for:''},
-                                    content:'Pergunta ' + (i+1)
-                                },
-                                {
-                                    type:'div',
-                                    attr:{class:'form-group'},
-                                    content:{
-                                        type:'textarea',
-                                        attr:{class:'form-control',rows:2},
-                                        content:current_questions[i].text
-                                    }
-                                },
-                                {
-                                    type:'div',
-                                    content:(function(question, question_index) {
-                                        var i, options = [];
-                                        for (i = 0; i < question.options.length; i += 1) {
-                                            options.push(
-                                                {
-                                                    'type':'div',
-                                                    'attr':{'class':'form-group'},
-                                                    'content':{
-                                                        'type':'div',
-                                                        'attr':{'class':'input-group'},
-                                                        'content':[
-                                                            {
-                                                                'type':'span',
-                                                                'attr':{'class':'input-group-addon'},
-                                                                'content':{
-                                                                    'type':'input',
-                                                                    'attr':{
-                                                                        'dataset':{
-                                                                            'question':question_index,
-                                                                            'option':i
-                                                                        },
-                                                                        'type':'radio',
-                                                                        'name':'question[' + question_index + ']',
-                                                                        'checked':{
-                                                                            'condition':(function(a, b){
-                                                                                if (parseInt(a, 10) === (b + 1)) {
-                                                                                    return true;
-                                                                                } else {
-                                                                                    return false;
-                                                                                }
-                                                                            }(question.answer, i)),
-                                                                            'value':'checked'
-                                                                        }
-                                                                    },
-                                                                    'events':{
-                                                                        'click':function(e) {
-                                                                            console.log(e.srcElement.dataset)
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                            {
-                                                                'type':'input',
-                                                                'attr':{
-                                                                    'dataset':{
-                                                                        'question':question_index,
-                                                                        'option':i
-                                                                    },
-                                                                    'type':'text',
-                                                                    'class':'form-control',
-                                                                    'value':question.options[i]
-                                                                },
-                                                                'events':{
-                                                                    'input':function(e) {
-                                                                        console.log(e.srcElement.value, e.srcElement.dataset);
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
+                                    type:'li',
+                                    attr:{class:'list-group-item'},
+                                    content:[
+                                        {
+                                            type:'label',
+                                            attr:{for:''},
+                                            content:'Pergunta ' + (i+1)
+                                        },
+                                        {
+                                            type:'div',
+                                            attr:{class:'form-group'},
+                                            content:{
+                                                type:'textarea',
+                                                attr:{
+                                                    class:'form-control',
+                                                    rows:2,
+                                                    dataset: {
+                                                        question: i
+                                                    }
+                                                },
+                                                content:current_questions[i].text,
+                                                events:{
+                                                    input:function(e) {
+                                                        current_questions[parseInt(e.target.dataset.question, 10)].text = e.target.value;
                                                     }
                                                 }
-                                            );
-                                        }
-                                        return options;
-                                    }(current_questions[i], i))
-                                },
-                                {
-                                    'type':'p',
-                                    'attr':{
-                                        'class':'text-right'
-                                    },
-                                    'content':{
-                                        'type':'button',
-                                        'attr':{
-                                            'class':'btn btn-danger btn-xs'
+                                            }
                                         },
-                                        'content':'Remover'
-                                    }
+                                        {
+                                            type:'div',
+                                            content:(function(question, question_index) {
+                                                var i, options = [];
+                                                for (i = 0; i < question.options.length; i += 1) {
+                                                    options.push(
+                                                        {
+                                                            'type':'div',
+                                                            'attr':{
+                                                                class:"form-group"
+                                                            },
+                                                            'content':{
+                                                                'type':'div',
+                                                                'attr':{'class':'input-group'},
+                                                                'content':[
+                                                                    {
+                                                                        'type':'span',
+                                                                        'attr':{'class':'input-group-addon'},
+                                                                        'content':[
+                                                                            {
+                                                                                'type':'input',
+                                                                                'attr':{
+                                                                                    'dataset':{
+                                                                                        'question':question_index,
+                                                                                        'option':i
+                                                                                    },
+                                                                                    'type':'radio',
+                                                                                    'name':'question[' + question_index + ']',
+                                                                                    'checked':{
+                                                                                        'condition':(function(a, b){
+                                                                                            if (parseInt(a, 10) === (b + 1)) {
+                                                                                                return true;
+                                                                                            } else {
+                                                                                                return false;
+                                                                                            }
+                                                                                        }(question.answer, i)),
+                                                                                        'value':'checked'
+                                                                                    }
+                                                                                },
+                                                                                'events':{
+                                                                                    'click':function(e) {
+                                                                                        current_questions[parseInt(e.target.dataset.question, 10)].answer = parseInt(e.target.dataset.option, 10) + 1
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                type:'button',
+                                                                                'type':'button',
+                                                                                'attr':{
+                                                                                    dataset:{
+                                                                                        'question':question_index,
+                                                                                        'option':i
+                                                                                    },
+                                                                                    class:'btn btn-default btn-xs',
+                                                                                    'style':'font-size:0.8em; margin-left:1em'
+                                                                                },
+                                                                                content:'Editar',
+                                                                                'events':{
+                                                                                    'click':function(e) {
+                                                                                        var image_url = window.prompt("URL da imagem",  current_questions[e.target.dataset.question].options[e.target.dataset.option].image);
+                                                                                        current_questions[e.target.dataset.question].options[e.target.dataset.option].image = (image_url !== null) ? image_url : "";
+                                                                                        renderQuestions(current_questions);
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                type:'span',
+                                                                                content:(function(q, i){
+                                                                                    if (q.options[i].image !== "") {
+                                                                                        return {
+                                                                                            type:'a',
+                                                                                            attr:{
+                                                                                                href:q.options[i].image,
+                                                                                                class:'btn-xs btn btn-primary',
+                                                                                                style:'font-size:0.8em; margin-left:1em',
+                                                                                                'target':'_blank'
+                                                                                            },
+                                                                                            content:"Visualizar"
+                                                                                        };
+                                                                                    } else {
+                                                                                        return "";
+                                                                                    }
+                                                                                }(question, i))
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        'type':'input',
+                                                                        'attr':{
+                                                                            'dataset':{
+                                                                                'question':question_index,
+                                                                                'option':i
+                                                                            },
+                                                                            'type':'text',
+                                                                            'class':'form-control',
+                                                                            'value':question.options[i].text
+                                                                        },
+                                                                        'events':{
+                                                                            'input':function(e) {
+                                                                                console.log(current_questions[parseInt(e.target.dataset.question, 10)]);
+                                                                                current_questions[parseInt(e.target.dataset.question, 10)].options[parseInt(e.target.dataset.option, 10)].text = e.target.value;
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        'type':'span',
+                                                                        'attr':{'class':'input-group-addon'},
+                                                                        'content':{
+                                                                            'type':'button',
+                                                                            'attr':{
+                                                                                dataset:{
+                                                                                    'question':question_index,
+                                                                                    'option':i
+                                                                                },
+                                                                                class:'btn btn-default btn-xs',
+                                                                                'style':'font-size:0.8em;'
+                                                                            },
+                                                                            content:'remover',
+                                                                            'events':{
+                                                                                'click':function(e) {
+                                                                                    if (current_questions[e.target.dataset.question].options.length > 1) {
+                                                                                        current_questions[e.target.dataset.question].options.splice(e.target.dataset.option, 1);
+                                                                                        renderQuestions(current_questions);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    );
+                                                }
+                                                return options;
+                                            }(current_questions[i], i))
+                                        },
+                                        {
+                                            'type':'p',
+                                            'content':[
+                                                {
+                                                    'type':'button',
+                                                    'attr':{
+                                                        'class':'btn btn-warning btn-xs',
+                                                        'dataset':{
+                                                            question: i
+                                                        }
+                                                    },
+                                                    'content':'Adicionar opção',
+                                                    'events':{
+                                                        'click':function(e) {
+                                                            current_questions[e.target.dataset.question].options.push('');
+                                                            renderQuestions(current_questions);
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    'type':'button',
+                                                    'attr':{
+                                                        'class':'btn btn-danger btn-xs pull-right',
+                                                        'dataset':{
+                                                            question: i
+                                                        }
+                                                    },
+                                                    'content':'Remover pergunta',
+                                                    'events':{
+                                                        'click':function(e) {
+                                                            current_questions.splice(e.target.dataset.question, 1);
+                                                            renderQuestions(current_questions);
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
-                            ]
-                        })
-                    );
-                }
+                                /**/
+                            );
+                        }
+                        return {
+                            type: 'div',
+                            content: questions
+                        };
+                    }(questions))
+                );
+                //Adiciona o conteúdo criado ao container
+                list_container.appendChild(list);
             }
 
-            renderQuestions(QuizApp.getQuestions());
+
+            $('#save_questions').click(function(e) {
+                QuizApp.updateQuestions(current_questions);
+            });
+
+            $('#add_question').click(function(e) {
+                current_questions.push(QuizApp.getTemplateQuestion());
+                renderQuestions(current_questions);
+            });
+
+            $('#reset').click(function() {
+                QuizApp.resetQuestions();
+                current_questions = QuizApp.getQuestions();
+                renderQuestions(current_questions);
+                return null;
+            });
+
+            renderQuestions(current_questions);
+
+
         });
     </script>
 </body>
