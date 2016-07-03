@@ -1,5 +1,5 @@
 function createNode (node) {
-    var i, data, attribute, nodeContent, nodeElement = document.createElement(node.type);
+    var i, data, attribute, nodeContent, nodeElement = (node.type === "img") ? new Image() : document.createElement(node.type);
     //Attributes
     if (node.hasOwnProperty('attr')) {
         for (attribute in node.attr) {
@@ -25,7 +25,7 @@ function createNode (node) {
         }
     }
     //Content
-    if (node.hasOwnProperty('content')) {
+    if (node.hasOwnProperty('content') && node.type !== "img") {
         if (typeof node.content === "string") {
             //nodeContent = document.createTextNode(node.content);
             //nodeElement.appendChild(nodeContent);
@@ -68,19 +68,19 @@ function createNode (node) {
                     "options": [
                         {
                             "text":"São Paulo",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"Fortaleza",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"Natal",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"Espírito Santo",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         }
                     ],
                     "answer": 2
@@ -92,19 +92,19 @@ function createNode (node) {
                     "options": [
                         {
                             "text":"366",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"365",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"333",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         },
                         {
                             "text":"666",
-                            "image":""
+                            "image":"http://dummyimage.com/600x400/000/fff"
                         }
                     ],
                     "answer": 1

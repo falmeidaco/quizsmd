@@ -74,14 +74,16 @@
                                 for (i = 0; i < q.options.length; i += 1) {
                                     options.push(
                                         {
-                                            type:'p',
+                                            type:'img',
                                             attr:{
+                                                src:q.options[i].image,
+                                                width:170,
+                                                height:170,
                                                 dataset:{
                                                     question: qid,
                                                     option: (i + 1)
                                                 }
                                             },
-                                            content:q.options[i].text,
                                             events:{
                                                 click:function(e) {
                                                     answers.push(e.target.dataset.option);
