@@ -157,19 +157,21 @@ function createNode (node) {
         };
 
         this.exportQuestions = function (questions) {
-            var url, blob, json,
+            var url, blob, json, clickEevent
                 fileName = "quiz-data.json",
                 a = document.createElement('a');
-
             json = JSON.stringify(questions);
-            blob = new Blob([json], {type: "octet/stream"}),
+            blob = new Blob([json], {type: "octet/stream"});
             url = window.URL.createObjectURL(blob);
-
+            clickEvent = new MouseEvent("click", {
+                "view": window,
+                "bubbles": true,
+                "cancelable": false
+            });
             a.href = url;
             a.download = fileName;
-            a.click();
-
-            window.URL.revokeObjectURL(url);
+            a.dispatchEvent(clickEvent);
+            //window.URL.revokeObjectURL(url);
         };
 
         this.parseFile = function (data) {

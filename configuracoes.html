@@ -279,7 +279,7 @@
                                                     'content':'Adicionar opção',
                                                     'events':{
                                                         'click':function(e) {
-                                                            current_questions[e.target.dataset.question].options.push('');
+                                                            current_questions[e.target.dataset.question].options.push({"text":"Texto da opção","image":""});
                                                             renderQuestions(current_questions);
                                                         }
                                                     }
