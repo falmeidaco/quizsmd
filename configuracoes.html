@@ -329,6 +329,7 @@
             //Salva alterações na memória
             $('#save_questions').click(function(e) {
                 QuizApp.updateQuestions(current_questions);
+                changes = 0;
                 window.alert("Suas alterações foram salvas com sucesso!");
             });
 
