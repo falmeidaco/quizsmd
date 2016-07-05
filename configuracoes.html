@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
 </head>
-
 <body class="container">
     <main class="MainApp">
         <header>
@@ -26,6 +25,9 @@
                                 <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-repeat"></span> Resetar perguntas</a>
                                 <a href="#" class="list-group-item" id="export"><span class="glyphicon glyphicon-open"></span> Exportar perguntas</a>
                                 <a href="#" class="list-group-item" id="import"><span class="glyphicon glyphicon-save"></span> Importar perguntas</a>
+                            </div>
+                            <div class="list-group">
+                                <a href="quiz-modelo.quizsmd" download="quiz-modelo.quizsmd" class="list-group-item" id="reset"><span class="glyphicon glyphicon-save"></span> Baixar <strong>quiz-modelo.quizsmd</strong></a>
                             </div>
                             <input type="file" id="import-file" style="display:none">
                         </div>
@@ -47,11 +49,12 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-                    <a class="btn btn-default" href="index.html"><span class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
+                    <a class="btn btn-default" href="index.html" id="back-home"><span class="glyphicon glyphicon-arrow-left"></span> Voltar</a>
                     <button id="save_questions" class="btn btn-primary pull-right"> <span class="glyphicon glyphicon-floppy-save"></span> Salvar configurações</button>
                 </div>
             </div>
         </section>
+        <p class="text-center small">Criado por <strong>Felipe Almeida</strong>. <a href="http://fb.me/felipealmeida">Facebook</a> / <a href="http://github.com/falmeida">Github</a></p>
     </main>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -60,7 +63,7 @@
         jQuery(document).ready(function () {
 
             //Inicializa variáveis e cria opção QuizSMD
-            var current_questions, QuizApp = new QuizSMD();
+            var current_questions, changes = 0, QuizApp = new QuizSMD();
 
             //Inicializa objeto
             QuizApp.init();
@@ -122,6 +125,7 @@
                                                 content:current_questions[i].text,
                                                 events:{
                                                     input:function(e) {
+                                                        changes += 1;
                                                         current_questions[parseInt(e.target.dataset.question, 10)].text = e.target.value;
                                                     }
                                                 }
@@ -168,7 +172,8 @@
                                                                                 },
                                                                                 'events':{
                                                                                     'click':function(e) {
-                                                                                        current_questions[parseInt(e.target.dataset.question, 10)].answer = parseInt(e.target.dataset.option, 10) + 1
+                                                                                        changes += 1;
+                                                                                        current_questions[parseInt(e.target.dataset.question, 10)].answer = parseInt(e.target.dataset.option, 10) + 1;
                                                                                     }
                                                                                 }
                                                                             },
@@ -190,6 +195,7 @@
                                                                                         if (image_url !== null) {
                                                                                             current_questions[e.target.dataset.question].options[e.target.dataset.option].image = image_url;
                                                                                         }
+                                                                                        changes += 1;
                                                                                         renderQuestions(current_questions);
                                                                                     }
                                                                                 }
@@ -228,7 +234,7 @@
                                                                         },
                                                                         'events':{
                                                                             'input':function(e) {
-                                                                                console.log(current_questions[parseInt(e.target.dataset.question, 10)]);
+                                                                                changes += 1;
                                                                                 current_questions[e.target.dataset.question].options[e.target.dataset.option].text = e.target.value;
                                                                             }
                                                                         }
@@ -251,6 +257,7 @@
                                                                                 'click':function(e) {
                                                                                     if (current_questions[e.target.dataset.question].options.length > 1) {
                                                                                         current_questions[e.target.dataset.question].options.splice(e.target.dataset.option, 1);
+                                                                                        changes += 1;
                                                                                         renderQuestions(current_questions);
                                                                                     }
                                                                                 }
@@ -280,6 +287,7 @@
                                                     'events':{
                                                         'click':function(e) {
                                                             current_questions[e.target.dataset.question].options.push({"text":"Texto da opção","image":""});
+                                                            changes += 1;
                                                             renderQuestions(current_questions);
                                                         }
                                                     }
@@ -296,6 +304,7 @@
                                                     'events':{
                                                         'click':function(e) {
                                                             current_questions.splice(e.target.dataset.question, 1);
+                                                            changes += 1;
                                                             renderQuestions(current_questions);
                                                         }
                                                     }
@@ -320,10 +329,12 @@
             //Salva alterações na memória
             $('#save_questions').click(function(e) {
                 QuizApp.updateQuestions(current_questions);
+                window.alert("Suas alterações foram salvas com sucesso!");
             });
 
             //Adiciona nova questão
             $('#add_question').click(function(e) {
+                changes += 1;
                 current_questions.push(QuizApp.getTemplateQuestion());
                 renderQuestions(current_questions);
             });
@@ -361,6 +372,7 @@
                                 console.log(imported);
                                 current_questions = imported;
                                 renderQuestions(current_questions);
+                                changes += 1;
                             } else {
                                 window.alert("O arquivo selecionado não é válido.");
                             }
@@ -371,10 +383,19 @@
                 });
                 return false;
             });
+            
+            //Ação para voltar
+            $('#back-home').click(function() {
+                if (changes > 0)  {
+                    return window.confirm("Você tem alteraçõe não salvas. Deseja sair sem salvar?");
+                } else {
+                    return true;
+                }
+            });
 
             //Renderiza questions para edição
             renderQuestions(current_questions);
-
+            
         });
     </script>
 </body>
