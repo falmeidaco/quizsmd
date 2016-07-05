@@ -24,9 +24,10 @@
                             <h3>Opções</h3>
                             <div class="list-group">
                                 <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-repeat"></span> Resetar perguntas</a>
-                                <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-save"></span> Exportar perguntas</a>
-                                <a href="#" class="list-group-item" id="reset"><span class="glyphicon glyphicon-open"></span> Importar perguntas</a>
+                                <a href="#" class="list-group-item" id="export"><span class="glyphicon glyphicon-open"></span> Exportar perguntas</a>
+                                <a href="#" class="list-group-item" id="import"><span class="glyphicon glyphicon-save"></span> Importar perguntas</a>
                             </div>
+                            <input type="file" id="import-file" style="display:none">
                         </div>
                         <div class="col-md-9">
                             <h3>Lista de perguntas e respostas <span class="badge" id="question-length"></span></h3>
@@ -36,12 +37,7 @@
                                         <label for="">Pergunta 1</label>
                                         <textarea name="" id="" rows="2" class="form-control"></textarea>
                                     </div>
-                                    <div class="option-container">
-                                        <img src="http://dummyimage.com/120x120/000000/fff" alt="Imagem" class="img-thumbnail">
-                                        <div class="form-group">
-                                            <input type="text" class="form-control">
-                                        </div>
-                                    </div>
+                                    <div class="option-container"></div>
                                 </li>
                             </ul>
                             <p class="text-center">
@@ -63,12 +59,16 @@
     <script>
         jQuery(document).ready(function () {
 
+            //Inicializa variáveis e cria opção QuizSMD
             var current_questions, QuizApp = new QuizSMD();
 
+            //Inicializa objeto
             QuizApp.init();
 
+            //Define variável local com as opções em edição
             current_questions = QuizApp.getQuestions();
 
+            //Renderizar html com a opções para edição
             function renderQuestions(questions) {
                 var list, list_container = document.getElementById('question-list');
                 document.getElementById('question-length').innerHTML = questions.length;
@@ -187,7 +187,9 @@
                                                                                 'events':{
                                                                                     'click':function(e) {
                                                                                         var image_url = window.prompt("URL da imagem",  current_questions[e.target.dataset.question].options[e.target.dataset.option].image);
-                                                                                        current_questions[e.target.dataset.question].options[e.target.dataset.option].image = (image_url !== null) ? image_url : "";
+                                                                                        if (image_url !== null) {
+                                                                                            current_questions[e.target.dataset.question].options[e.target.dataset.option].image = image_url;
+                                                                                        }
                                                                                         renderQuestions(current_questions);
                                                                                     }
                                                                                 }
@@ -227,7 +229,7 @@
                                                                         'events':{
                                                                             'input':function(e) {
                                                                                 console.log(current_questions[parseInt(e.target.dataset.question, 10)]);
-                                                                                current_questions[parseInt(e.target.dataset.question, 10)].options[parseInt(e.target.dataset.option, 10)].text = e.target.value;
+                                                                                current_questions[e.target.dataset.question].options[e.target.dataset.option].text = e.target.value;
                                                                             }
                                                                         }
                                                                     },
@@ -315,25 +317,63 @@
                 list_container.appendChild(list);
             }
 
-
+            //Salva alterações na memória
             $('#save_questions').click(function(e) {
                 QuizApp.updateQuestions(current_questions);
             });
 
+            //Adiciona nova questão
             $('#add_question').click(function(e) {
                 current_questions.push(QuizApp.getTemplateQuestion());
                 renderQuestions(current_questions);
             });
 
+            //Reseta formulário com as questões padrão
             $('#reset').click(function() {
+                //Executa metodo que reseta questões guardadas na memória
                 QuizApp.resetQuestions();
                 current_questions = QuizApp.getQuestions();
                 renderQuestions(current_questions);
-                return null;
+                return false;
             });
 
-            renderQuestions(current_questions);
+            //Exporta questões
+            $('#export').click(function() {
+                QuizApp.exportQuestions(current_questions);
+                return false;
+            });
 
+            //Importa arquivo de perguntas
+            $('#import').click(function() {
+                //Dispara evento click no input escondido
+                $("#import-file").click();
+                //Evento para quando o formulário mudar
+                $("#import-file").on('change', function(e){
+                    //Cria objeto para ler arquivo
+                    var imported, file_reader = new FileReader();
+                    //Verifica se algum arquivo foi selecionado
+                    if (e.target.files.length > 0) {
+                        //Evento para quando o arquivo tiver sido carregado
+                        file_reader.onload = function(e) {
+                            //Verifica se arquivo selecionado está no formato correto
+                            imported = QuizApp.parseFile(e.target.result);
+                            if (imported !== false) {
+                                console.log(imported);
+                                current_questions = imported;
+                                renderQuestions(current_questions);
+                            } else {
+                                window.alert("O arquivo selecionado não é válido.");
+                            }
+                        };
+                        //Ler o conteúdo do arquivo selecionado
+                        file_reader.readAsText(e.target.files[0]);
+                    }
+                });
+                return false;
+            });
+
+            //Renderiza questions para edição
+            renderQuestions(current_questions);
 
         });
     </script>

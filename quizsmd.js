@@ -62,55 +62,49 @@ function createNode (node) {
         config = {
             default_questions:[
                 {
-                    "enabled": true,
                     "text": "Qual a capital do Ceará?",
                     "image": "",
                     "options": [
                         {
                             "text":"São Paulo",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         },
                         {
                             "text":"Fortaleza",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         },
                         {
                             "text":"Natal",
-                            "image":"http://dummyimage.com/600x400/000/fff"
-                        },
-                        {
-                            "text":"Espírito Santo",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         }
                     ],
                     "answer": 2
                 },
                 {
-                    "enabled": true,
                     "text": "Quantos dias tem 1 ano bisexto?",
                     "image": "",
                     "options": [
                         {
                             "text":"366",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         },
                         {
                             "text":"365",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         },
                         {
                             "text":"333",
-                            "image":"http://dummyimage.com/600x400/000/fff"
-                        },
-                        {
-                            "text":"666",
-                            "image":"http://dummyimage.com/600x400/000/fff"
+                            "image":""
                         }
                     ],
                     "answer": 1
                 }
             ],
         };
+
+        this.getDefaultOptionImage = function () {
+            return 'assets/default-option_image.png'
+        }
 
         this.resetQuestions = function () {
             $this.updateQuestions(config.default_questions);
@@ -127,13 +121,20 @@ function createNode (node) {
 
         this.getTemplateQuestion = function () {
             return {
-                "enabled": true,
                 "text": "Texto da pergunta",
                 "image": "",
                 "options": [
                     {
-                        "text":"Texto da opção",
-                        "image":"http://dummyimage.com/600x400/000/fff"
+                        "text":"Texto da opção 1",
+                        "image":""
+                    },
+                    {
+                        "text":"Texto da opção 2",
+                        "image":""
+                    },
+                    {
+                        "text":"Texto da opção 3",
+                        "image":""
                     }
                 ],
                 "answer": 0
@@ -153,6 +154,56 @@ function createNode (node) {
                 }
             }
             return result;
+        };
+
+        this.exportQuestions = function (questions) {
+            var url, blob, json,
+                fileName = "quiz-data.json",
+                a = document.createElement('a');
+
+            json = JSON.stringify(questions);
+            blob = new Blob([json], {type: "octet/stream"}),
+            url = window.URL.createObjectURL(blob);
+
+            a.href = url;
+            a.download = fileName;
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        };
+
+        this.parseFile = function (data) {
+            var i, j, jsonObj, is_valid, result = [];
+            try {
+                jsonObj = JSON.parse(data);
+                if (jsonObj.constructor === Array) {
+                    if (jsonObj.length > 0) {
+                        for (i = 0; i < jsonObj.length; i += 1) {
+                            if (typeof jsonObj[i].text === "string" && typeof jsonObj[i].answer === "number" && typeof jsonObj[i].options === "object") {
+                                for (j = 0; j < jsonObj[i].options.length; j += 1) {
+                                    if (typeof jsonObj[i].options[j].text === "string" && typeof jsonObj[i].options[j].image === "string") {
+                                        continue;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                result.push(jsonObj[i]);
+                            }
+                        }
+                    } else {
+                        is_valid = false;
+                    }
+                } else {
+                    is_valid = false;
+                }
+            } catch (e) {
+                return false;
+            }
+            if (result.length > 1) {
+                return result;
+            } else {
+                return false;
+            }
         };
 
         this.init = function () {

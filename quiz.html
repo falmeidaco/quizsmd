@@ -8,6 +8,36 @@
     <title>QuizSMD</title>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+    <style>
+        .question-option {
+            display: inline-block;
+            padding: 0.6em;
+            cursor: pointer;
+            box-shadow: 0 1px 2px gray;
+            border-radius: 0.1em;
+            margin: 0.5em;
+        }
+        .question-option:hover {
+            background-color: azure;
+        }
+        .question-option .option-image {
+            background-size:cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            border: 2px solid #fff;
+            box-shadow: 0 0 2px gray;
+            width: 170px;
+            height: 150px;
+            border-radius: 0.1em;
+            background-color: #FFF;
+        }
+        .question-option .option-legend {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+
+        }
+    </style>
 </head>
 
 <body class="container">
@@ -17,17 +47,19 @@
         </header>
         <section id="screen-content">
             <div class="screen-start text-center">
-                <p>Olá. Clique em iniciar para responder as perguntas.</p>
-                <p>
-                    <button id="start-quiz" class="btn btn-success"><strong>Iniciar Quiz</strong></button>
-                </p>
+                <div class="jumbotron">
+                    <p>Clique em iniciar para responder as perguntas.</p>
+                    <p>
+                        <button id="start-quiz" class="btn btn-success"><span class="glyphicon glyphicon-play"></span> <strong>Iniciar Quiz</strong></button>
+                    </p>
+                </div>
             </div>
             <div class="panel panel-default screen-quiz" style="display:none">
                 <div class="panel-heading text-center">
-                        Pergunta <strong>1</strong> de <strong>10</strong>
+                        Pergunta <strong id="current-question"></strong> de <strong id="total-questions"></strong>
                 </div>
                 <div class="panel-body">
-                    <div id="question-container">
+                    <div id="question-container" class="text-center">
 
                     </div>
                     <div class="progress hide">
@@ -37,10 +69,44 @@
                     </div>
                 </div>
             </div>
-            <div class="screen-result" style="display:none">
-                <p id="result"></p>
+            <div class="screen-result panel-default" style="display:none">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="text-center">Resultado</h3>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4">
+                            <div class="panel panel-success">
+                                <div class="panel-heading text-center"><strong>ACERTOS</strong></div>
+                                <div class="panel-body text-center">
+                                    <span style="font-size:5em" id="total-corrent"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading text-center"><strong>ERROS</strong></div>
+                                <div class="panel-body text-center">
+                                    <span style="font-size:5em" id="total-wrong"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <div class="panel panel-warning">
+                                <div class="panel-heading text-center"><strong>DESEMPENHO</strong></div>
+                                <div class="panel-body text-center">
+                                    <span style="font-size:5em" id="total-percent"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-center" id="result"></p>
+                </div>
             </div>
-            <p class="text-center"><a href="index.html" class="btn btn-default">Voltar</a></p>
+            <p class="text-center"><a href="index.html" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Voltar para o início</a></p>
         </section>
     </main>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -56,6 +122,10 @@
 
             function renderQuestion(q, qi) {
                 var question_container = document.getElementById('question-container');
+
+                $('#current-question').html(qi+1);
+                $('#total-questions').html(q.length);
+
                 question_container.innerHTML = "";
                 question_container.appendChild(createNode({
                     type:'div',
@@ -74,19 +144,40 @@
                                 for (i = 0; i < q.options.length; i += 1) {
                                     options.push(
                                         {
-                                            type:'img',
+                                            type:'div',
                                             attr:{
-                                                src:q.options[i].image,
-                                                width:170,
-                                                height:170,
+                                                class:'question-option',
                                                 dataset:{
                                                     question: qid,
                                                     option: (i + 1)
                                                 }
                                             },
+                                            content:[
+                                                {
+                                                    type:'div',
+                                                    attr:{
+                                                        class:'option-image',
+                                                        style:(function(option) {
+                                                            if (option.image!=="") {
+                                                                return "background-image: url('" + option.image + "')";
+                                                            } else {
+                                                                return "background-image: url('" + QuizApp.getDefaultOptionImage() + "')"
+                                                            }
+                                                        }(q.options[i]))
+                                                    }
+                                                },
+                                                {
+                                                    type:'div',
+                                                    attr:{
+                                                        class:'option-legend'
+                                                    },
+                                                    content:q.options[i].text
+                                                }
+                                            ],
                                             events:{
                                                 click:function(e) {
-                                                    answers.push(e.target.dataset.option);
+                                                    console.log(this.dataset.option);
+                                                    answers.push(this.dataset.option);
                                                     nextQuestion();
                                                 }
                                             }
@@ -106,8 +197,11 @@
                     renderQuestion(questions, current_question);
                 } else {
                     $(".screen-quiz").hide();
+                    console.log(answers);
                     $(".screen-result").show();
-                    $('#result').html("Você acertou " + QuizApp.getResults(questions, answers).correct.length + " e errou " + QuizApp.getResults(questions, answers).wrong.length + " de " + questions.length + " perguntas.");
+                    $('#total-corrent').html(QuizApp.getResults(questions, answers).correct.length)
+                    $('#total-wrong').html(QuizApp.getResults(questions, answers).wrong.length)
+                    $('#total-percent').html((Math.trunc(100/questions.length) * QuizApp.getResults(questions, answers).correct.length) + "%");
                 }
             }
 
